@@ -1,0 +1,5 @@
+# downloaded files and working copies stay local
+archive/
+cad_archive.sqlite
+__pycache__/
+*.log

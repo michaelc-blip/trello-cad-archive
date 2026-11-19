@@ -3,3 +3,4 @@ archive/
 cad_archive.sqlite
 __pycache__/
 *.log
+.env

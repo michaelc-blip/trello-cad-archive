@@ -11,8 +11,13 @@ so you can go straight to downloading. See `report.md` for the breakdown.
 
     pip install requests
     xz -dk cad_archive.sqlite.xz          # -> cad_archive.sqlite (~310 MB)
-    export TRELLO_API_KEY=...             # from https://trello.com/power-ups/admin
-    export TRELLO_TOKEN=...               # read-only token is enough
+
+Create a file called `.env` in this folder (it is git-ignored):
+
+    TRELLO_API_KEY=your-key       # from https://trello.com/power-ups/admin
+    TRELLO_TOKEN=your-token       # read-only token is enough
+
+No quotes or spaces needed. Environment variables, if set, override the file.
 
 Windows without `xz`: open the `.xz` file with 7-Zip.
 

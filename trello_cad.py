@@ -9,7 +9,8 @@ catalogue. Runs locally; sync the output folder to Google Drive with rclone.
   python3 trello_cad.py download [--board X] [--categories cad,render,pdf,archive]
   python3 trello_cad.py export             # catalogue.csv
 
-Needs env vars TRELLO_API_KEY and TRELLO_TOKEN (read-only token is enough).
+Needs TRELLO_API_KEY and TRELLO_TOKEN (read-only token is enough), either as
+environment variables or in a .env file next to this script.
 """
 import argparse, csv, hashlib, json, os, re, shutil, sqlite3, sys, threading, time
 from collections import defaultdict
@@ -18,6 +19,29 @@ from datetime import datetime, timezone
 from urllib.parse import unquote, urlparse
 
 import requests
+
+
+def load_dotenv():
+    """Load KEY=VALUE lines from a .env next to this script (or in the current
+    folder). Real environment variables win over the file."""
+    for folder in dict.fromkeys([os.path.dirname(os.path.abspath(__file__)), os.getcwd()]):
+        path = os.path.join(folder, ".env")
+        if not os.path.isfile(path):
+            continue
+        with open(path, encoding="utf-8-sig") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, val = line.split("=", 1)
+                key = key.strip().removeprefix("export ").strip()
+                val = val.strip()
+                if len(val) >= 2 and val[0] == val[-1] and val[0] in "\"'":
+                    val = val[1:-1]
+                os.environ.setdefault(key, val)
+
+
+load_dotenv()
 
 API = "https://api.trello.com/1"
 WORKSPACE = os.environ.get("TRELLO_WORKSPACE", "cullenjewellery2")
@@ -61,7 +85,8 @@ _local = threading.local()
 def auth_header():
     key, token = os.environ.get("TRELLO_API_KEY"), os.environ.get("TRELLO_TOKEN")
     if not key or not token:
-        sys.exit("Set TRELLO_API_KEY and TRELLO_TOKEN environment variables.")
+        sys.exit("TRELLO_API_KEY / TRELLO_TOKEN not found. Put them in a .env file next to "
+                 f"trello_cad.py ({os.path.join(HERE, '.env')}) or set them as environment variables.")
     return {"Authorization": f'OAuth oauth_consumer_key="{key}", oauth_token="{token}"'}
 
 
